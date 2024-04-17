@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const listingSchema = new mongoose.Schema({
 
-    name:{
+    title:{
         type:String,
         required:true,
     },
@@ -39,16 +39,14 @@ const listingSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    latitude:{
-        type:String,
-        required:true,
-    },
-    longitude:{
-        type:String,
-        required:true,
-    },
+    location: {
+        type: { type: String, enum: ['Point'], required: true },
+        coordinates: { type: [Number], required: true }
+      },
     },{timestamps: true}
 );
+
+listingSchema.index({ location: "2dsphere" });
 
 const Listing = mongoose.model('Listing', listingSchema);
 

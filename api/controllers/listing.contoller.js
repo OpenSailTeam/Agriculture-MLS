@@ -70,25 +70,49 @@ export const getListings = async (req, res, next) => {
         const limit = parseInt(req.query.limit) || 9;
         const startIndex = parseInt(req.query.startIndex) || 0;
 
-
         const searchTerm = req.query.searchTerm || '';
         const sort = req.query.sort || 'createdAt';
         const order = req.query.order || 'desc';
 
+        const lat = parseFloat(req.query.lat);
+        const lng = parseFloat(req.query.lng);
+        const distance = parseFloat(req.query.distance); // Distance in kilometers
 
-        const listings = await Listing.find(
-            {
-                $or: [
-                    {title: {$regex: searchTerm, $options: 'i'}},
-                    {description: {$regex: searchTerm, $options: 'i'}},
-                    {location: {$regex: searchTerm, $options: 'i'}},
-                ],
-            }).sort(
-                {[sort]: order}
-            ).limit(limit).skip(startIndex);
+        // Build the geoQuery object if latitude and longitude are provided
+        let geoQuery = {};
+        if (!isNaN(lat) && !isNaN(lng) && !isNaN(distance)) {
+            geoQuery = {
+                location: {
+                    $near: {
+                        $geometry: {
+                            type: "Point",
+                            coordinates: [lng, lat] // MongoDB uses [longitude, latitude] order
+                        },
+                        $maxDistance: distance * 1000 // Convert km to meters
+                    }
+                }
+            };
+        }
+
+        const query = {
+            $and: [
+                {
+                    $or: [
+                        {title: {$regex: searchTerm, $options: 'i'}},
+                        {description: {$regex: searchTerm, $options: 'i'}}
+                    ],
+                },
+                geoQuery
+            ]
+        };
+
+        const listings = await Listing.find(query).sort(
+            {[sort]: order}
+        ).limit(limit).skip(startIndex);
         
-            return res.status(200).json(listings);
-        } catch (error) {
-            next(error);
-         }
+        return res.status(200).json(listings);
+    } catch (error) {
+        next(error);
+    }
 };
+
