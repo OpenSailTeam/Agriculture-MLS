@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import Listing from './models/listing.model.js';  // Ensure this path is correct
@@ -30,6 +31,7 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
+app.use(cors());
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/listing", listingRouter);

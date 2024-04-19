@@ -14,6 +14,8 @@
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "autoprefixer": "latest",
+    "axios": "^1.6.8",
+    "cors": "^2.8.5",
     "leaflet": "^1.9.4",
     "nouislider-react": "^3.4.2",
     "postcss": "latest",

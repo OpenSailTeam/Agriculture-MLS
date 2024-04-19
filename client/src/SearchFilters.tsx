@@ -5,11 +5,12 @@ import 'nouislider/distribute/nouislider.css';
 
 export const SearchFilters = () => {
   const { setSearchQuery, setFilters } = useSearchContext();
-  const [priceRange, setPriceRange] = useState([20, 50]);
+  const [priceRange, setPriceRange] = useState([0, 500000]);
 
   // Handler for search input changes
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
+    console.log("Search changed");
   };
 
   // Handler for slider value change
@@ -42,7 +43,7 @@ export const SearchFilters = () => {
         </label>
         <Nouislider
           id="price-range-slider"
-          range={{ min: 0, max: 100 }}
+          range={{ min: 0, max: 1000000 }}
           start={priceRange}
           connect
           tooltips
