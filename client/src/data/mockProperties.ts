@@ -19,7 +19,7 @@ export interface Property {
       coordinates: [51.585, -0.19], // Example coordinates
     },
     {
-      id: 1,
+      id: 2,
       title: 'Cozy Downtown Apartment',
       price: '$1,200/mo',
       address: '123 Main St, Anytown, USA',
@@ -27,7 +27,7 @@ export interface Property {
       coordinates: [51.503, -0.06], // Example coordinates
     },
     {
-      id: 1,
+      id: 3,
       title: 'Cozy Downtown Apartment',
       price: '$1,200/mo',
       address: '123 Main St, Anytown, USA',
@@ -35,7 +35,7 @@ export interface Property {
       coordinates: [52.505, -0.49], // Example coordinates
     },
     {
-      id: 1,
+      id: 4,
       title: 'Cozy Downtown Apartment',
       price: '$1,200/mo',
       address: '123 Main St, Anytown, USA',
@@ -43,7 +43,7 @@ export interface Property {
       coordinates: [53.605, -0.49], // Example coordinates
     },
     {
-      id: 1,
+      id: 5,
       title: 'Cozy Downtown Apartment',
       price: '$1,200/mo',
       address: '123 Main St, Anytown, USA',
@@ -51,7 +51,7 @@ export interface Property {
       coordinates: [51.535, -0.15], // Example coordinates
     },
     {
-      id: 1,
+      id: 6,
       title: 'Cozy Downtown Apartment',
       price: '$1,200/mo',
       address: '123 Main St, Anytown, USA',
@@ -59,7 +59,7 @@ export interface Property {
       coordinates: [15.503, -0.16], // Example coordinates
     },
     {
-      id: 1,
+      id: 7,
       title: 'Cozy Downtown Apartment',
       price: '$1,200/mo',
       address: '123 Main St, Anytown, USA',
@@ -67,7 +67,7 @@ export interface Property {
       coordinates: [55.505, -0.79], // Example coordinates
     },
     {
-      id: 1,
+      id: 8,
       title: 'Cozy Downtown Apartment',
       price: '$1,200/mo',
       address: '123 Main St, Anytown, USA',

@@ -1,7 +1,12 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import axios from 'axios';
 
-// Define the shape of the context state including the properties array
+// Define additional interface for map bounds
+interface MapBounds {
+  _northEast: { lat: number, lng: number };
+  _southWest: { lat: number, lng: number };
+}
+
 interface SearchContextState {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -9,7 +14,9 @@ interface SearchContextState {
   setFilters: (filters: Record<string, any>) => void;
   mapViewport: Record<string, any>;
   setMapViewport: (viewport: Record<string, any>) => void;
-  properties: Property[]; // Define the type based on your expected property structure
+  properties: Property[];
+  mapBounds: MapBounds | null;
+  setMapBounds: (bounds: MapBounds) => void;
 }
 
 const initialState: SearchContextState = {
@@ -20,6 +27,8 @@ const initialState: SearchContextState = {
   mapViewport: {},
   setMapViewport: () => {},
   properties: [],
+  mapBounds: null,
+  setMapBounds: () => {}
 };
 
 interface Location {
@@ -28,11 +37,11 @@ interface Location {
 }
 
 interface Property {
-  id: string;
+  _id: string;
   title: string;
   price: string;
   address: string;
-  imageUrls: string;
+  imageUrls: Array<string>;
   location: Location;
 }
 
@@ -52,10 +61,10 @@ export const SearchContextProvider = ({ children }: SearchContextProviderProps) 
   const [filters, setFilters] = useState<Record<string, any>>(initialState.filters);
   const [mapViewport, setMapViewport] = useState<Record<string, any>>(initialState.mapViewport);
   const [properties, setProperties] = useState<Property[]>(initialState.properties);
+  const [mapBounds, setMapBounds] = useState<MapBounds | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // TODO: sync with URL query params
   useEffect(() => {
     setLoading(true);
     fetchData().then(data => {
@@ -65,28 +74,30 @@ export const SearchContextProvider = ({ children }: SearchContextProviderProps) 
       setError(err.message);
       setLoading(false);
     });
-  }, [searchQuery, filters, mapViewport]);
+  }, [searchQuery, filters, mapViewport, mapBounds]);
 
   const fetchData = async () => {
     try {
-      // Check if lat and lng are defined, provide default values if not
-      const lat = mapViewport.lat ?? '51.505';  // Default latitude
-      const lng = mapViewport.lng ?? '-0.09';  // Default longitude
-      const searchTerm = searchQuery || '';  // Use empty string if searchQuery is undefined
-      const distance = '5';  // Static distance as string
   
-      // Construct the query parameters as strings
-      const queryParams = new URLSearchParams({
-        lat: lat.toString(),  // Convert latitude to string, safe due to default or existing value
-        lng: lng.toString(),  // Convert longitude to string, safe due to default or existing value
-        distance,             // Already a string
-        searchTerm,           // Already a string or empty
-        filters: JSON.stringify(filters || {})  // Ensure filters is an object and stringify it
-      }).toString();
+      const queryParams = new URLSearchParams();
+      if (mapBounds) {
+        queryParams.append("neLat", mapBounds._northEast.lat.toString());
+        queryParams.append("neLng", mapBounds._northEast.lng.toString());
+        queryParams.append("swLat", mapBounds._southWest.lat.toString());
+        queryParams.append("swLng", mapBounds._southWest.lng.toString());
+      }
+      // Additional existing parameters
+      queryParams.append("searchTerm", searchQuery);
+      queryParams.append("filters", JSON.stringify(filters || {}));
+      console.log(queryParams.toString());
   
       const url = `http://localhost:5000/api/listing/get?${queryParams}`;
-      const response = await axios.get(url);
-      return response.data; // Assuming the API returns the list of properties
+      const response = await axios.get<Property[]>(url);
+      const properties = response.data.map(property => ({
+        ...property,
+        imageUrls: property.imageUrls && property.imageUrls.length > 0 ? property.imageUrls : ['path/to/default/image.jpg']
+      }));
+      return properties;
     } catch (error) {
       console.error('Failed to fetch properties:', error);
       return [];  // Return empty array on error
@@ -95,7 +106,7 @@ export const SearchContextProvider = ({ children }: SearchContextProviderProps) 
   
   
   return (
-    <SearchContext.Provider value={{ searchQuery, setSearchQuery, filters, setFilters, mapViewport, setMapViewport, properties }}>
+    <SearchContext.Provider value={{ searchQuery, setSearchQuery, filters, setFilters, mapViewport, setMapViewport, properties, mapBounds, setMapBounds }}>
       {children}
     </SearchContext.Provider>
   );

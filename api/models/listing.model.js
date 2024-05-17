@@ -12,26 +12,78 @@ const listingSchema = new mongoose.Schema({
     },
     address:{
         type:String,
-        required:true,
-        unique : true,
+        required:false,
+        unique:false,
     },
     price:{
         type:Number,
+        required:true,
+    },
+    contacts:{
+        type:Array,
+        required:true,
+    },
+    enterprises:{
+        type:Array,
+        required:false,
+    },
+    closestTown:{
+        type:String,
+        required:false,
+    },
+    updates:{
+        type:Array,
+        required:true,
+    },
+    listingStatus:{
+        type:String,
+        required:true,
+    },
+    mlsNumber:{
+        type:String,
+        required:false,
+    },
+    expiryDate:{
+        type:String,
+        required:false,
+    },
+    videoLink:{
+        type:String,
+        required:false,
+    },
+    brokerage:{
+        type:String,
+        required:true,
+    },
+    serviceType:{
+        type:String,
         required:true,
     },
     discountedPrice:{
         type:Number,
         required:false,
     },
-    area:{
+    titleAcres:{
         type:Number,
-        required:true,
+        required:false,
     },
-    type:{
-        type:String,
-        required:true,
+    cultivatedAcres:{
+        type:Number,
+        required:false,
     },
-    imageurls:{
+    soilFinalRating:{
+        type:Number,
+        required:false,
+    },
+    avgAVPerQtr:{
+        type:Number,
+        required:false,
+    },
+    improvements:{
+        type:Number,
+        required:false,
+    },
+    imageUrls:{
         type:Array,
         required:true,
     },

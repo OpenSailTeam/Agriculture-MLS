@@ -67,29 +67,50 @@ export const getListing = async (req, res, next) => {
 
 export const getListings = async (req, res, next) => {
     try {
-        const limit = parseInt(req.query.limit) || 9;
+        const limit = parseInt(req.query.limit) || 500;
         const startIndex = parseInt(req.query.startIndex) || 0;
 
         const searchTerm = req.query.searchTerm || '';
         const sort = req.query.sort || 'createdAt';
         const order = req.query.order || 'desc';
 
-        const lat = parseFloat(req.query.lat);
-        const lng = parseFloat(req.query.lng);
-        const distance = parseFloat(req.query.distance); // Distance in kilometers
+        const neLat = parseFloat(req.query.neLat);
+        const neLng = parseFloat(req.query.neLng);
+        const swLat = parseFloat(req.query.swLat);
+        const swLng = parseFloat(req.query.swLng);
 
-        // Build the geoQuery object if latitude and longitude are provided
+        // Extract filters from query string and parse them
+        const filters = req.query.filters ? JSON.parse(req.query.filters) : {};
+
+        // Build the geoQuery object if bounds are provided
         let geoQuery = {};
-        if (!isNaN(lat) && !isNaN(lng) && !isNaN(distance)) {
+        if (!isNaN(neLat) && !isNaN(neLng) && !isNaN(swLat) && !isNaN(swLng)) {
             geoQuery = {
                 location: {
-                    $near: {
+                    $geoWithin: {
                         $geometry: {
-                            type: "Point",
-                            coordinates: [lng, lat] // MongoDB uses [longitude, latitude] order
-                        },
-                        $maxDistance: distance * 1000 // Convert km to meters
+                            type: "Polygon",
+                            coordinates: [[
+                                [swLng, neLat], // Top-left corner
+                                [neLng, neLat], // Top-right corner
+                                [neLng, swLat], // Bottom-right corner
+                                [swLng, swLat], // Bottom-left corner
+                                [swLng, neLat]  // Closure of the polygon
+                            ]]
+                        }
                     }
+                }
+            };
+        }
+
+        // Price range filter
+        let priceQuery = {};
+        if (filters.priceRange) {
+            const [minPrice, maxPrice] = filters.priceRange;
+            priceQuery = {
+                price: {
+                    $gte: minPrice,
+                    $lte: maxPrice
                 }
             };
         }
@@ -100,19 +121,21 @@ export const getListings = async (req, res, next) => {
                     $or: [
                         {title: {$regex: searchTerm, $options: 'i'}},
                         {description: {$regex: searchTerm, $options: 'i'}}
-                    ],
+                    ]
                 },
-                geoQuery
+                geoQuery,
+                priceQuery
             ]
         };
 
         const listings = await Listing.find(query).sort(
             {[sort]: order}
         ).limit(limit).skip(startIndex);
-        
+
         return res.status(200).json(listings);
     } catch (error) {
         next(error);
     }
 };
+
 
