@@ -115,6 +115,33 @@ export const getListings = async (req, res, next) => {
             };
         }
 
+        let serviceTypeQuery = {};
+        if (filters.serviceType && filters.serviceType.length > 0) {
+            serviceTypeQuery = {
+                serviceType: {
+                    $in: filters.serviceType
+                }
+            };
+        }
+
+        let listingStatusQuery = {};
+        if (filters.serviceType && filters.listingStatus.length > 0) {
+            listingStatusQuery = {
+                listingStatus: {
+                    $in: filters.listingStatus
+                }
+            };
+        }
+
+        let updatesQuery = {};
+        if (filters.serviceType && filters.updates.length > 0) {
+            updatesQuery = {
+                updates: {
+                    $in: filters.updates
+                }
+            };
+        }
+
         const query = {
             $and: [
                 {
@@ -124,7 +151,10 @@ export const getListings = async (req, res, next) => {
                     ]
                 },
                 geoQuery,
-                priceQuery
+                priceQuery,
+                serviceTypeQuery,
+                listingStatusQuery,
+                updatesQuery
             ]
         };
 
