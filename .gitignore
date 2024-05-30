@@ -1,6 +1,7 @@
 .bin
 node_modules/
 build/
+client/node_modules/.cache/
 
 # Logs
 logs
