@@ -15,7 +15,7 @@ export const FilterPopover: React.FC<FilterPopoverProps> = ({ label, onApply, ch
         {label}
         <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-600" aria-hidden="true" />
       </PopoverButton>
-      <PopoverPanel className="absolute z-30 mt-2 bg-white border border-solid border-gray-300 rounded shadow-lg">
+      <PopoverPanel className="min-w-[280px] absolute z-30 mt-2 bg-white border border-solid border-gray-300 rounded shadow-lg">
         {children}
         <div className="p-4">
         <PopoverButton as="button" onClick={onApply} className="w-full p-3 bg-blue-500 font-bold text-white rounded shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-blue-600">

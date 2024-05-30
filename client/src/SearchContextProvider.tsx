@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
+import { useLocation, useNavigate } from 'react-router-dom'
 
 // Define additional interface for map bounds
 interface MapBounds {
@@ -46,65 +47,84 @@ interface Property {
 }
 
 // Create context
-const SearchContext = createContext<SearchContextState>(initialState);
-
-// Custom hook to use the SearchContext
+const SearchContext = createContext<SearchContextState>({} as SearchContextState);
 export const useSearchContext = () => useContext(SearchContext);
 
-// Provider component
 interface SearchContextProviderProps {
   children: ReactNode;
 }
 
 export const SearchContextProvider = ({ children }: SearchContextProviderProps) => {
-  const [searchQuery, setSearchQuery] = useState<string>(initialState.searchQuery);
-  const [filters, setFilters] = useState<Record<string, any>>(initialState.filters);
-  const [mapViewport, setMapViewport] = useState<Record<string, any>>(initialState.mapViewport);
-  const [properties, setProperties] = useState<Property[]>(initialState.properties);
-  const [mapBounds, setMapBounds] = useState<MapBounds | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Parse URL parameters right at the start
+  const urlParams = new URLSearchParams(location.search);
+  const initialSearchQuery = urlParams.get('searchQuery') || '';
+  const initialFilters = JSON.parse(urlParams.get('filters') || '{}');
+  const initialMapViewport = JSON.parse(urlParams.get('mapViewport') || '{}');
+  let initialMapBounds: MapBounds | null = null;
+  const boundsParam = urlParams.get('mapBounds');
+  if (boundsParam) {
+    const [neLat, neLng, swLat, swLng] = boundsParam.split(',').map(parseFloat);
+    initialMapBounds = { _northEast: { lat: neLat, lng: neLng }, _southWest: { lat: swLat, lng: swLng } };
+  }
 
+  // State initialization with direct URL parameter integration
+  const [searchQuery, setSearchQuery] = useState<string>(initialSearchQuery);
+  const [filters, setFilters] = useState<Record<string, any>>(initialFilters);
+  const [mapViewport, setMapViewport] = useState<Record<string, any>>(initialMapViewport);
+  const [mapBounds, setMapBounds] = useState<MapBounds | null>(initialMapBounds);
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Update URL parameters whenever state changes
   useEffect(() => {
-    setLoading(true);
-    fetchData().then(data => {
-      setProperties(data);
-      setLoading(false);
-    }).catch(err => {
-      setError(err.message);
-      setLoading(false);
-    });
+    const params = new URLSearchParams();
+    params.set('searchQuery', searchQuery);
+    params.set('filters', JSON.stringify(filters));
+    params.set('mapViewport', JSON.stringify(mapViewport));
+    if (mapBounds) {
+      params.set('mapBounds', `${mapBounds._northEast.lat},${mapBounds._northEast.lng},${mapBounds._southWest.lat},${mapBounds._southWest.lng}`);
+    }
+    navigate(`?${params.toString()}`, { replace: true });
+  }, [searchQuery, filters, mapViewport, mapBounds, navigate]);
+
+  // Fetch data whenever relevant states change
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const queryParams = new URLSearchParams();
+        if (mapBounds) {
+          queryParams.append("neLat", mapBounds._northEast.lat.toString());
+          queryParams.append("neLng", mapBounds._northEast.lng.toString());
+          queryParams.append("swLat", mapBounds._southWest.lat.toString());
+          queryParams.append("swLng", mapBounds._southWest.lng.toString());
+        }
+        queryParams.append("searchTerm", searchQuery);
+        queryParams.append("filters", JSON.stringify(filters));
+        const url = `http://localhost:5000/api/listing/get?${queryParams.toString()}`;
+        const response = await axios.get<Property[]>(url);
+        setProperties(response.data);
+      } catch (error: unknown) {
+        if (typeof error === 'string') {
+          setError(error);
+        } else if (error instanceof Error) {
+          setError(error.message);
+        } else {
+          setError('An unexpected error occurred');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, [searchQuery, filters, mapViewport, mapBounds]);
 
-  const fetchData = async () => {
-    try {
-  
-      const queryParams = new URLSearchParams();
-      if (mapBounds) {
-        queryParams.append("neLat", mapBounds._northEast.lat.toString());
-        queryParams.append("neLng", mapBounds._northEast.lng.toString());
-        queryParams.append("swLat", mapBounds._southWest.lat.toString());
-        queryParams.append("swLng", mapBounds._southWest.lng.toString());
-      }
-      // Additional existing parameters
-      queryParams.append("searchTerm", searchQuery);
-      queryParams.append("filters", JSON.stringify(filters || {}));
-      console.log(queryParams.toString());
-  
-      const url = `http://localhost:5000/api/listing/get?${queryParams}`;
-      const response = await axios.get<Property[]>(url);
-      const properties = response.data.map(property => ({
-        ...property,
-        imageUrls: property.imageUrls && property.imageUrls.length > 0 ? property.imageUrls : ['path/to/default/image.jpg']
-      }));
-      return properties;
-    } catch (error) {
-      console.error('Failed to fetch properties:', error);
-      return [];  // Return empty array on error
-    }
-  };
-  
-  
   return (
     <SearchContext.Provider value={{ searchQuery, setSearchQuery, filters, setFilters, mapViewport, setMapViewport, properties, mapBounds, setMapBounds }}>
       {children}

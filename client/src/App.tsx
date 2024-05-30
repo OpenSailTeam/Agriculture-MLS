@@ -7,8 +7,8 @@ import { PropertyList } from './PropertyList';
 
 const App = () => {
   return (
-    <SearchContextProvider>
-      <Router>
+    <Router>
+      <SearchContextProvider>
         <div className="App h-screen w-full flex flex-col">
           <main className="flex flex-col h-full">
             <div className="shrink-0 relative z-20">
@@ -18,14 +18,14 @@ const App = () => {
               <div className="flex flex-1 min-w-0 overflow-hidden">
                 <Map />
               </div>
-              <div className="w-[660px] lg:w-[660px] md:w-full overflow-y-auto">
+              <div className="w-full md:w-[330px] xl:w-[660px] overflow-y-auto">
                 <PropertyList />
               </div>
             </div>
           </main>
         </div>
-      </Router>
-    </SearchContextProvider>
+      </SearchContextProvider>
+    </Router>
   );
 };
 
