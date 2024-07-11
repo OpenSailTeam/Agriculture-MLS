@@ -103,7 +103,6 @@ export const getListings = async (req, res, next) => {
             };
         }
 
-        // Price range filter
         let priceQuery = {};
         if (filters.priceRange) {
             const [minPrice, maxPrice] = filters.priceRange;
@@ -111,6 +110,17 @@ export const getListings = async (req, res, next) => {
                 price: {
                     $gte: minPrice,
                     $lte: maxPrice
+                }
+            };
+        }
+
+        let acresQuery = {};
+        if (filters.acresRange) {
+            const [minAcres, maxAcres] = filters.acresRange;
+            acresQuery = {
+                titleAcres: {
+                    $gte: minAcres,
+                    $lte: maxAcres
                 }
             };
         }
@@ -152,6 +162,7 @@ export const getListings = async (req, res, next) => {
                 },
                 geoQuery,
                 priceQuery,
+                acresQuery,
                 serviceTypeQuery,
                 listingStatusQuery,
                 updatesQuery

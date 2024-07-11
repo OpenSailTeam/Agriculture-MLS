@@ -1,34 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
+import { useCallback, useMemo } from 'react';
 import { FilterPopover } from "./FilterPopover";
 import { useSearchContext } from "./SearchContextProvider";
 
 export const SearchFilters = () => {
-  const { setSearchQuery, setFilters } = useSearchContext();
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(500000);
-  const [serviceType, setServiceType] = useState([
-    "Listing",
-    "Tender",
-    "Auction",
-    "Lease",
-    "Wanted",
-  ]);
-  const [listingStatus, setListingStatus] = useState([
-    "Active",
-    "Pending",
-    "Sold/Leased",
-  ]);
-  const [updates, setUpdates] = useState([
-    "New Listing",
-    "Price Reduced",
-    "Modified Listing",
-    "Back on the Market",
-  ]);
+  const { searchQuery, setSearchQuery, filters, setFilters } = useSearchContext();
+  const { priceRange = [0, Number.MAX_SAFE_INTEGER], acresRange = [0, Number.MAX_SAFE_INTEGER], serviceType = [], listingStatus = [], updates = [] } = filters;
+  
 
   const stateSetters = {
-    serviceType: setServiceType,
-    listingStatus: setListingStatus,
-    updates: setUpdates,
+    serviceType: (newServiceType: string[]) => setFilters({ ...filters, serviceType: newServiceType }),
+    listingStatus: (newListingStatus: string[]) => setFilters({ ...filters, listingStatus: newListingStatus }),
+    updates: (newUpdates: string[]) => setFilters({ ...filters, updates: newUpdates }),
+    priceRange: (newPriceRange: [number, number]) => setFilters({ ...filters, priceRange: newPriceRange }),
+    acresRange: (newAcresRange: [number, number]) => setFilters({ ...filters, acresRange: newAcresRange }),
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,17 +24,25 @@ export const SearchFilters = () => {
     value: string,
     category: keyof typeof stateSetters
   ) => {
-    const setState = stateSetters[category];
-    setState((prev) =>
-      prev.includes(value)
-        ? prev.filter((item) => item !== value)
-        : [...prev, value]
-    );
+    const currentValues = filters[category] || [];
+    const newValues = currentValues.includes(value)
+      ? currentValues.filter((item: string) => item !== value)
+      : [...currentValues, value];
+    stateSetters[category](newValues);
+  };
+
+  const handlePriceChange = (min: number, max: number) => {
+    stateSetters.priceRange([min, max]);
+  };
+
+  const handleAcresChange = (min: number, max: number) => {
+    stateSetters.acresRange([min, max]);
   };
 
   const applyFilters = () => {
     setFilters({
-      priceRange: [minPrice, maxPrice],
+      priceRange,
+      acresRange,
       serviceType,
       listingStatus,
       updates,
@@ -57,10 +50,11 @@ export const SearchFilters = () => {
   };
 
   return (
-    <div className="flex flex-row gap-4 p-4">
+    <div className="flex flex-row gap-4 p-2">
       <input
         type="text"
         placeholder="Search"
+        value={searchQuery}
         onChange={handleSearchChange}
         className="border border-solid border-gray-300 p-2 rounded"
       />
@@ -71,14 +65,14 @@ export const SearchFilters = () => {
         </div>
         <div className="p-4">
           {["Listing", "Tender", "Auction", "Lease", "Wanted"].map((type) => (
-            <label className="flex mb-2" key={type}>
+            <label className="flex items-center mb-2 gap-3 w-full" key={type}>
               <input
                 type="checkbox"
-                className="inline-block m-0 mr-3 appearance-none rounded border-2 border-solid border-gray-300 bg-gray-100 h-5 w-5 checked:bg-blue-500"
+                className="inline-block appearance-none rounded border-2 border-solid border-gray-300 bg-gray-100 h-5 w-5 checked:bg-blue-500 flex-shrink-0"
                 checked={serviceType.includes(type)}
                 onChange={() => handleCheckboxChange(type, "serviceType")}
               />
-              <span className="inline-block">{type}</span>
+              <span className="flex-grow min-w-0">{type}</span>
             </label>
           ))}
         </div>
@@ -86,15 +80,15 @@ export const SearchFilters = () => {
           <h3>Status</h3>
         </div>
         <div className="p-4">
-          {["Active", "Pending", "Sold/Leased"].map((status) => (
-            <label className="flex mb-2" key={status}>
+          {["Active", "Pending", "Sold/Leased"].map((type) => (
+            <label className="flex items-center mb-2 gap-3 w-full" key={type}>
               <input
                 type="checkbox"
-                className="inline-block m-0 mr-3 appearance-none rounded border-2 border-solid border-gray-300 bg-gray-100 h-5 w-5 checked:bg-blue-500"
-                checked={listingStatus.includes(status)}
-                onChange={() => handleCheckboxChange(status, "listingStatus")}
+                className="inline-block appearance-none rounded border-2 border-solid border-gray-300 bg-gray-100 h-5 w-5 checked:bg-blue-500 flex-shrink-0"
+                checked={listingStatus.includes(type)}
+                onChange={() => handleCheckboxChange(type, "listingStatus")}
               />
-              <span className="inline-block">{status}</span>
+              <span className="flex-grow min-w-0">{type}</span>
             </label>
           ))}
         </div>
@@ -111,8 +105,8 @@ export const SearchFilters = () => {
                 Minimum
               </label>
               <select
-                value={minPrice}
-                onChange={(e) => setMinPrice(Number(e.target.value))}
+                value={priceRange[0]}
+                onChange={(e) => handlePriceChange(Number(e.target.value), priceRange[1])}
                 className="border border-solid bg-gray-100 border-gray-300 rounded p-2"
               >
                 {[
@@ -135,8 +129,8 @@ export const SearchFilters = () => {
                 Maximum
               </label>
               <select
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
+                value={priceRange[1]}
+                onChange={(e) => handlePriceChange(priceRange[0], Number(e.target.value))}
                 className="border border-solid bg-gray-100 border-gray-300 rounded p-2"
               >
                 {[
@@ -199,20 +193,66 @@ export const SearchFilters = () => {
         </div>
       </FilterPopover>
 
+      <FilterPopover label="Title Acres" onApply={applyFilters}>
+        <div className="p-4 font-medium text-sm bg-gray-100 text-gray-600">
+          <h3>Acres Range</h3>
+        </div>
+        <div className="p-4">
+          <div className="flex gap-2">
+            <div>
+              <label className="block text-sm font-medium text-gray-900 pb-1">
+                Minimum
+              </label>
+              <select
+                value={acresRange[0]}
+                onChange={(e) => handleAcresChange(Number(e.target.value), acresRange[1])}
+                className="border border-solid bg-gray-100 border-gray-300 rounded p-2"
+              >
+                {[
+                  0, 160, 320, 640, 1280, 2560, 5120, 10240,
+                ].map((acres) => (
+                  <option key={acres} value={acres}>
+                    {acres}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-900 pb-1">
+                Maximum
+              </label>
+              <select
+                value={acresRange[1]}
+                onChange={(e) => handleAcresChange(acresRange[0], Number(e.target.value))}
+                className="border border-solid bg-gray-100 border-gray-300 rounded p-2"
+              >
+                {[
+                  160, 320, 640, 1280, 2560, 5120, 10240, Number.MAX_SAFE_INTEGER,
+                ].map((acres) => (
+                  <option key={acres} value={acres}>
+                    {acres}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      </FilterPopover>
+
       <FilterPopover label="Updates" onApply={applyFilters}>
         <div className="p-4 font-medium text-sm bg-gray-100 text-gray-600">
           <h3>Type</h3>
         </div>
         <div className="p-4">
           {["New Listing", "Price Reduced", "Modified Listing", "Back on the Market"].map((type) => (
-            <label className="flex mb-2" key={type}>
+            <label className="flex items-center mb-2 gap-3 w-full" key={type}>
               <input
                 type="checkbox"
-                className="inline-block m-0 mr-3 appearance-none rounded border-2 border-solid border-gray-300 bg-gray-100 h-5 w-5 checked:bg-blue-500"
+                className="inline-block appearance-none rounded border-2 border-solid border-gray-300 bg-gray-100 h-5 w-5 checked:bg-blue-500 flex-shrink-0"
                 checked={updates.includes(type)}
                 onChange={() => handleCheckboxChange(type, "updates")}
               />
-              <span className="inline-block">{type}</span>
+              <span className="flex-grow min-w-0">{type}</span>
             </label>
           ))}
         </div>
