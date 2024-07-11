@@ -40,10 +40,24 @@ interface Location {
 interface Property {
   _id: string;
   title: string;
+  description: string;
   price: string;
   address: string;
   imageUrls: Array<string>;
   location: Location;
+  enterprises: Array<string>;
+  closestTown: string;
+  updates: Array<string>;
+  listingStatus: string;
+  mlsNumber: string;
+  videoLink: string;
+  brokerage: string;
+  serviceType: string;
+  titleAcres: number;
+  cultivatedAcres: number;
+  soilFinalRating: number;
+  avgAVPerQtr: number;
+  improvements: number;
 }
 
 // Create context
@@ -61,6 +75,7 @@ export const SearchContextProvider = ({ children }: SearchContextProviderProps) 
   // Parse URL parameters right at the start
   const urlParams = new URLSearchParams(location.search);
   const initialSearchQuery = urlParams.get('searchQuery') || '';
+  const initialLocationSearchQuery = urlParams.get('searchQuery') || '';
   const initialFilters = JSON.parse(urlParams.get('filters') || '{}');
   const initialMapViewport = JSON.parse(urlParams.get('mapViewport') || '{}');
   let initialMapBounds: MapBounds | null = null;
@@ -72,6 +87,7 @@ export const SearchContextProvider = ({ children }: SearchContextProviderProps) 
 
   // State initialization with direct URL parameter integration
   const [searchQuery, setSearchQuery] = useState<string>(initialSearchQuery);
+  const [locationSearchQuery, setLocationSearchQuery] = useState<string>(initialLocationSearchQuery);
   const [filters, setFilters] = useState<Record<string, any>>(initialFilters);
   const [mapViewport, setMapViewport] = useState<Record<string, any>>(initialMapViewport);
   const [mapBounds, setMapBounds] = useState<MapBounds | null>(initialMapBounds);

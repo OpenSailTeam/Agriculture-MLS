@@ -1,24 +1,27 @@
 import React from "react";
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { FilterPopover } from "./FilterPopover";
 import { useSearchContext } from "./SearchContextProvider";
 
 export const SearchFilters = () => {
   const { searchQuery, setSearchQuery, filters, setFilters } = useSearchContext();
-  const { priceRange = [0, Number.MAX_SAFE_INTEGER], acresRange = [0, Number.MAX_SAFE_INTEGER], serviceType = [], listingStatus = [], updates = [] } = filters;
+  const { priceRange = [0, Number.MAX_SAFE_INTEGER], acresRange = [0, Number.MAX_SAFE_INTEGER], soilRange = [0, 100], serviceType = [], listingStatus = [], updates = [], enterprises = [] } = filters;
   
-
   const stateSetters = {
     serviceType: (newServiceType: string[]) => setFilters({ ...filters, serviceType: newServiceType }),
     listingStatus: (newListingStatus: string[]) => setFilters({ ...filters, listingStatus: newListingStatus }),
     updates: (newUpdates: string[]) => setFilters({ ...filters, updates: newUpdates }),
+    enterprises: (newEnterprises: string[]) => setFilters({ ...filters, enterprises: newEnterprises }),
     priceRange: (newPriceRange: [number, number]) => setFilters({ ...filters, priceRange: newPriceRange }),
     acresRange: (newAcresRange: [number, number]) => setFilters({ ...filters, acresRange: newAcresRange }),
+    soilRange: (newSoilRange: [number, number]) => setFilters({ ...filters, soilRange: newSoilRange }),
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
+  
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleCheckboxChange = (
     value: string,
@@ -39,25 +42,43 @@ export const SearchFilters = () => {
     stateSetters.acresRange([min, max]);
   };
 
+  const handleSoilChange = (min: number, max: number) => {
+    stateSetters.soilRange([min, max]);
+  };
+
   const applyFilters = () => {
     setFilters({
       priceRange,
       acresRange,
+      soilRange,
       serviceType,
       listingStatus,
       updates,
+      enterprises: []
+    });
+  };
+
+  const resetFilters = () => {
+    setFilters({
     });
   };
 
   return (
     <div className="flex flex-row gap-4 p-2">
-      <input
-        type="text"
-        placeholder="Search"
-        value={searchQuery}
-        onChange={handleSearchChange}
-        className="border border-solid border-gray-300 p-2 rounded"
-      />
+        <div className="relative">
+          <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+              <svg className="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+              </svg>
+          </div>
+        <input
+          type="search"
+          placeholder="Property name"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="border border-solid border-gray-300 rounded block px-4 py-2 ps-10 text-sm text-gray-900 rounded-lg bg-gray-50 search-cancel:fill-blue-400 search-cancel:h-4 search-cancel:w-4 search-cancel:appearance-none search-cancel:bg-[url(assets/clear.svg)] search-cancel:cursor-pointer"
+        />
+      </div>
 
       <FilterPopover label="Listing Status" onApply={applyFilters}>
         <div className="p-4 font-medium text-sm bg-gray-100 text-gray-600">
@@ -100,14 +121,14 @@ export const SearchFilters = () => {
         </div>
         <div className="p-4">
           <div className="flex gap-2">
-            <div>
+            <div className="w-full">
               <label className="block text-sm font-medium text-gray-900 pb-1">
                 Minimum
               </label>
               <select
                 value={priceRange[0]}
                 onChange={(e) => handlePriceChange(Number(e.target.value), priceRange[1])}
-                className="border border-solid bg-gray-100 border-gray-300 rounded p-2"
+                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full"
               >
                 {[
                   0, 50000, 100000, 150000, 200000, 250000, 300000, 350000,
@@ -124,14 +145,14 @@ export const SearchFilters = () => {
                 ))}
               </select>
             </div>
-            <div>
+            <div className="w-full">
               <label className="block text-sm font-medium text-gray-900 pb-1">
                 Maximum
               </label>
               <select
                 value={priceRange[1]}
                 onChange={(e) => handlePriceChange(priceRange[0], Number(e.target.value))}
-                className="border border-solid bg-gray-100 border-gray-300 rounded p-2"
+                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full"
               >
                 {[
                   50000,
@@ -199,14 +220,14 @@ export const SearchFilters = () => {
         </div>
         <div className="p-4">
           <div className="flex gap-2">
-            <div>
+            <div className="w-full">
               <label className="block text-sm font-medium text-gray-900 pb-1">
                 Minimum
               </label>
               <select
                 value={acresRange[0]}
                 onChange={(e) => handleAcresChange(Number(e.target.value), acresRange[1])}
-                className="border border-solid bg-gray-100 border-gray-300 rounded p-2"
+                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full"
               >
                 {[
                   0, 160, 320, 640, 1280, 2560, 5120, 10240,
@@ -217,20 +238,66 @@ export const SearchFilters = () => {
                 ))}
               </select>
             </div>
-            <div>
+            <div className="w-full">
               <label className="block text-sm font-medium text-gray-900 pb-1">
                 Maximum
               </label>
               <select
                 value={acresRange[1]}
                 onChange={(e) => handleAcresChange(acresRange[0], Number(e.target.value))}
-                className="border border-solid bg-gray-100 border-gray-300 rounded p-2"
+                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full"
               >
                 {[
                   160, 320, 640, 1280, 2560, 5120, 10240, Number.MAX_SAFE_INTEGER,
                 ].map((acres) => (
                   <option key={acres} value={acres}>
                     {acres}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      </FilterPopover>
+
+      <FilterPopover label="Soil Final Rating" onApply={applyFilters}>
+        <div className="p-4 font-medium text-sm bg-gray-100 text-gray-600">
+          <h3>Soil Final Rating Range</h3>
+        </div>
+        <div className="p-4">
+          <div className="flex gap-2">
+            <div className="w-full">
+              <label className="block text-sm font-medium text-gray-900 pb-1">
+                Minimum
+              </label>
+              <select
+                value={soilRange[0]}
+                onChange={(e) => handleSoilChange(Number(e.target.value), soilRange[1])}
+                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full"
+              >
+                {[
+                  0, 10, 20, 30, 40, 50, 60, 70, 80, 90,
+                ].map((soilFinalRating) => (
+                  <option key={soilFinalRating} value={soilFinalRating}>
+                    {soilFinalRating}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-full">
+              <label className="block text-sm font-medium text-gray-900 pb-1">
+                Maximum
+              </label>
+              <select
+                value={soilRange[1]}
+                onChange={(e) => handleSoilChange(soilRange[0], Number(e.target.value))}
+                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full"
+              >
+                {[
+                  10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
+                ].map((soilFinalRating) => (
+                  <option key={soilFinalRating} value={soilFinalRating}>
+                    {soilFinalRating}
                   </option>
                 ))}
               </select>
@@ -257,6 +324,31 @@ export const SearchFilters = () => {
           ))}
         </div>
       </FilterPopover>
+
+      <FilterPopover label="Enterprise" onApply={applyFilters}>
+        <div className="p-4 font-medium text-sm bg-gray-100 text-gray-600">
+          <h3>Type</h3>
+        </div>
+        <div className="p-4">
+          {["Acreage", "Agribusiness", "Beef/Ranch", "Commercial", "Dairy", "Development Potential", "Feed lot", "Grain", "Greenhouse", "Hay (arable)", "Hog", "Orchard", "Pasture", "Poultry", "Recreational", "Residential", "Specialty livestock", "Other"].map((type) => (
+            <label className="flex items-center mb-2 gap-3 w-full" key={type}>
+              <input
+                type="checkbox"
+                className="inline-block appearance-none rounded border-2 border-solid border-gray-300 bg-gray-100 h-5 w-5 checked:bg-blue-500 flex-shrink-0"
+                checked={enterprises.includes(type)}
+                onChange={() => handleCheckboxChange(type, "enterprises")}
+              />
+              <span className="flex-grow min-w-0">{type}</span>
+            </label>
+          ))}
+        </div>
+      </FilterPopover>
+
+      <button 
+      onClick={resetFilters}
+      className="text-white end-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 font-semibold rounded-lg text-sm px-4 py-2">
+        Reset filters
+      </button>
     </div>
   );
 };

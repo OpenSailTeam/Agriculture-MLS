@@ -8,5 +8,9 @@ module.exports = {
     // Remove the Tailwind CSS preflight styles so it can use Material UI's preflight instead (CssBaseline).
     preflight: false,
   },
-  plugins: [],
+  plugins: [
+    require('tailwindcss/plugin')(({ addVariant }) => {
+      addVariant('search-cancel', '&::-webkit-search-cancel-button');
+    }),
+  ],
 };

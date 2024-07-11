@@ -125,6 +125,17 @@ export const getListings = async (req, res, next) => {
             };
         }
 
+        let soilQuery = {};
+        if (filters.soilRange) {
+            const [minSoil, maxSoil] = filters.soilRange;
+            soilQuery = {
+                soilFinalRating: {
+                    $gte: minSoil,
+                    $lte: maxSoil
+                }
+            };
+        }
+
         let serviceTypeQuery = {};
         if (filters.serviceType && filters.serviceType.length > 0) {
             serviceTypeQuery = {
@@ -133,9 +144,9 @@ export const getListings = async (req, res, next) => {
                 }
             };
         }
-
+        
         let listingStatusQuery = {};
-        if (filters.serviceType && filters.listingStatus.length > 0) {
+        if (filters.listingStatus && filters.listingStatus.length > 0) {
             listingStatusQuery = {
                 listingStatus: {
                     $in: filters.listingStatus
@@ -143,14 +154,23 @@ export const getListings = async (req, res, next) => {
             };
         }
 
+        let enterprisesQuery = {};
+        if (filters.enterprises && filters.enterprises.length > 0) {
+            enterprisesQuery = {
+                enterprises: {
+                    $in: filters.enterprises
+                }
+            };
+        }
+        
         let updatesQuery = {};
-        if (filters.serviceType && filters.updates.length > 0) {
+        if (filters.updates && filters.updates.length > 0) {
             updatesQuery = {
                 updates: {
                     $in: filters.updates
                 }
             };
-        }
+        }        
 
         const query = {
             $and: [
@@ -163,8 +183,10 @@ export const getListings = async (req, res, next) => {
                 geoQuery,
                 priceQuery,
                 acresQuery,
+                soilQuery,
                 serviceTypeQuery,
                 listingStatusQuery,
+                enterprisesQuery,
                 updatesQuery
             ]
         };
