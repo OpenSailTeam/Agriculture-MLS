@@ -115,9 +115,6 @@ logrocket*
 .pnp
 .pnp.js
 
-# Swagger Codegen
-api/
-
 # temporary files
 *.tmp
 
