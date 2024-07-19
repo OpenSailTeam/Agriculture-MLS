@@ -1,24 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
-import { useLocation, useNavigate } from 'react-router-dom'
-
-// Define additional interface for map bounds
-interface MapBounds {
-  _northEast: { lat: number, lng: number };
-  _southWest: { lat: number, lng: number };
-}
-
-interface SearchContextState {
-  searchQuery: string;
-  setSearchQuery: (query: string) => void;
-  filters: Record<string, any>;
-  setFilters: (filters: Record<string, any>) => void;
-  mapViewport: Record<string, any>;
-  setMapViewport: (viewport: Record<string, any>) => void;
-  properties: Property[];
-  mapBounds: MapBounds | null;
-  setMapBounds: (bounds: MapBounds) => void;
-}
+import { useLocation, useNavigate } from 'react-router-dom';
+import { MapBounds, SearchContextState, Property, SortOrder } from './types';
 
 const initialState: SearchContextState = {
   searchQuery: '',
@@ -29,38 +12,11 @@ const initialState: SearchContextState = {
   setMapViewport: () => {},
   properties: [],
   mapBounds: null,
-  setMapBounds: () => {}
+  setMapBounds: () => {},
+  sortOrder: { field: 'createdAt', direction: 'descending' },
+  setSortOrder: () => {}
 };
 
-interface Location {
-  type: string;
-  coordinates: [number, number];  // Array with two elements: longitude and latitude
-}
-
-interface Property {
-  _id: string;
-  title: string;
-  description: string;
-  price: string;
-  address: string;
-  imageUrls: Array<string>;
-  location: Location;
-  enterprises: Array<string>;
-  closestTown: string;
-  updates: Array<string>;
-  listingStatus: string;
-  mlsNumber: string;
-  videoLink: string;
-  brokerage: string;
-  serviceType: string;
-  titleAcres: number;
-  cultivatedAcres: number;
-  soilFinalRating: number;
-  avgAVPerQtr: number;
-  improvements: number;
-}
-
-// Create context
 const SearchContext = createContext<SearchContextState>({} as SearchContextState);
 export const useSearchContext = () => useContext(SearchContext);
 
@@ -71,11 +27,9 @@ interface SearchContextProviderProps {
 export const SearchContextProvider = ({ children }: SearchContextProviderProps) => {
   const location = useLocation();
   const navigate = useNavigate();
-  
-  // Parse URL parameters right at the start
+
   const urlParams = new URLSearchParams(location.search);
   const initialSearchQuery = urlParams.get('searchQuery') || '';
-  const initialLocationSearchQuery = urlParams.get('searchQuery') || '';
   const initialFilters = JSON.parse(urlParams.get('filters') || '{}');
   const initialMapViewport = JSON.parse(urlParams.get('mapViewport') || '{}');
   let initialMapBounds: MapBounds | null = null;
@@ -85,17 +39,15 @@ export const SearchContextProvider = ({ children }: SearchContextProviderProps) 
     initialMapBounds = { _northEast: { lat: neLat, lng: neLng }, _southWest: { lat: swLat, lng: swLng } };
   }
 
-  // State initialization with direct URL parameter integration
   const [searchQuery, setSearchQuery] = useState<string>(initialSearchQuery);
-  const [locationSearchQuery, setLocationSearchQuery] = useState<string>(initialLocationSearchQuery);
   const [filters, setFilters] = useState<Record<string, any>>(initialFilters);
   const [mapViewport, setMapViewport] = useState<Record<string, any>>(initialMapViewport);
   const [mapBounds, setMapBounds] = useState<MapBounds | null>(initialMapBounds);
   const [properties, setProperties] = useState<Property[]>([]);
+  const [sortOrder, setSortOrder] = useState<SortOrder>(initialState.sortOrder);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Update URL parameters whenever state changes
   useEffect(() => {
     const params = new URLSearchParams();
     params.set('searchQuery', searchQuery);
@@ -107,7 +59,6 @@ export const SearchContextProvider = ({ children }: SearchContextProviderProps) 
     navigate(`?${params.toString()}`, { replace: true });
   }, [searchQuery, filters, mapViewport, mapBounds, navigate]);
 
-  // Fetch data whenever relevant states change
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -124,25 +75,28 @@ export const SearchContextProvider = ({ children }: SearchContextProviderProps) 
         queryParams.append("filters", JSON.stringify(filters));
         const url = `http://localhost:5000/api/listing/get?${queryParams.toString()}`;
         const response = await axios.get<Property[]>(url);
-        setProperties(response.data);
-      } catch (error: unknown) {
-        if (typeof error === 'string') {
-          setError(error);
-        } else if (error instanceof Error) {
-          setError(error.message);
-        } else {
-          setError('An unexpected error occurred');
-        }
+        const sortedProperties = response.data.sort((a, b) => {
+          const valueA = a[sortOrder.field];
+          const valueB = b[sortOrder.field];
+          if (sortOrder.direction === 'ascending') {
+            return valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
+          } else {
+            return valueA < valueB ? 1 : valueA > valueB ? -1 : 0;
+          }
+        });
+        setProperties(sortedProperties);
+      } catch (error: any) {
+        setError(error?.response?.data?.message || 'An unexpected error occurred');
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [searchQuery, filters, mapViewport, mapBounds]);
+  }, [searchQuery, filters, mapViewport, mapBounds, sortOrder]);
 
   return (
-    <SearchContext.Provider value={{ searchQuery, setSearchQuery, filters, setFilters, mapViewport, setMapViewport, properties, mapBounds, setMapBounds }}>
+    <SearchContext.Provider value={{ searchQuery, setSearchQuery, filters, setFilters, mapViewport, setMapViewport, properties, mapBounds, setMapBounds, sortOrder, setSortOrder }}>
       {children}
     </SearchContext.Provider>
   );
