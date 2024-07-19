@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MapBounds, SearchContextState, Property, SortOrder } from './types';
+import { SearchContextState, Property, SortOrder } from './types';
+import { LatLngBounds, latLngBounds, LatLngBoundsExpression } from 'leaflet';
 
 const initialState: SearchContextState = {
   searchQuery: '',
@@ -11,7 +12,7 @@ const initialState: SearchContextState = {
   mapViewport: {},
   setMapViewport: () => {},
   properties: [],
-  mapBounds: null,
+  mapBounds: undefined,
   setMapBounds: () => {},
   sortOrder: { field: 'createdAt', direction: 'descending' },
   setSortOrder: () => {}
@@ -32,17 +33,24 @@ export const SearchContextProvider = ({ children }: SearchContextProviderProps) 
   const initialSearchQuery = urlParams.get('searchQuery') || '';
   const initialFilters = JSON.parse(urlParams.get('filters') || '{}');
   const initialMapViewport = JSON.parse(urlParams.get('mapViewport') || '{}');
-  let initialMapBounds: MapBounds | null = null;
+  const initialSortOrder = { field: urlParams.get('sort') || '{}', direction: urlParams.get('order') || '{}' };
+  let initialMapBounds: LatLngBounds | undefined = latLngBounds(
+    { lat: 45.75219336063106, lng: -112.96142578125001 },
+    { lat: 57.25528054528889, lng: -95.88867187500001 }
+  );
   const boundsParam = urlParams.get('mapBounds');
-  if (boundsParam) {
+if (boundsParam) {
     const [neLat, neLng, swLat, swLng] = boundsParam.split(',').map(parseFloat);
-    initialMapBounds = { _northEast: { lat: neLat, lng: neLng }, _southWest: { lat: swLat, lng: swLng } };
-  }
+    initialMapBounds = latLngBounds(
+        { lat: swLat, lng: swLng },
+        { lat: neLat, lng: neLng }
+    );
+}
 
   const [searchQuery, setSearchQuery] = useState<string>(initialSearchQuery);
   const [filters, setFilters] = useState<Record<string, any>>(initialFilters);
   const [mapViewport, setMapViewport] = useState<Record<string, any>>(initialMapViewport);
-  const [mapBounds, setMapBounds] = useState<MapBounds | null>(initialMapBounds);
+  const [mapBounds, setMapBounds] = useState<LatLngBounds | undefined>(initialMapBounds);
   const [properties, setProperties] = useState<Property[]>([]);
   const [sortOrder, setSortOrder] = useState<SortOrder>(initialState.sortOrder);
   const [loading, setLoading] = useState(false);
@@ -53,8 +61,10 @@ export const SearchContextProvider = ({ children }: SearchContextProviderProps) 
     params.set('searchQuery', searchQuery);
     params.set('filters', JSON.stringify(filters));
     params.set('mapViewport', JSON.stringify(mapViewport));
+    params.set('sort', sortOrder.field);
+    params.set('order', sortOrder.direction);
     if (mapBounds) {
-      params.set('mapBounds', `${mapBounds._northEast.lat},${mapBounds._northEast.lng},${mapBounds._southWest.lat},${mapBounds._southWest.lng}`);
+      params.set('mapBounds', `${mapBounds.getNorthEast().lat},${mapBounds.getNorthEast().lng},${mapBounds.getSouthWest().lat},${mapBounds.getSouthWest().lng}`);
     }
     navigate(`?${params.toString()}`, { replace: true });
   }, [searchQuery, filters, mapViewport, mapBounds, navigate]);
@@ -66,25 +76,18 @@ export const SearchContextProvider = ({ children }: SearchContextProviderProps) 
       try {
         const queryParams = new URLSearchParams();
         if (mapBounds) {
-          queryParams.append("neLat", mapBounds._northEast.lat.toString());
-          queryParams.append("neLng", mapBounds._northEast.lng.toString());
-          queryParams.append("swLat", mapBounds._southWest.lat.toString());
-          queryParams.append("swLng", mapBounds._southWest.lng.toString());
+          queryParams.append("neLat", mapBounds.getNorthEast().lat.toString());
+          queryParams.append("neLng", mapBounds.getNorthEast().lng.toString());
+          queryParams.append("swLat", mapBounds.getSouthWest().lat.toString());
+          queryParams.append("swLng", mapBounds.getSouthWest().lng.toString());
         }
         queryParams.append("searchTerm", searchQuery);
         queryParams.append("filters", JSON.stringify(filters));
+        queryParams.append("sort", sortOrder.field);
+        queryParams.append("order", sortOrder.direction);
         const url = `http://localhost:5000/api/listing/get?${queryParams.toString()}`;
         const response = await axios.get<Property[]>(url);
-        const sortedProperties = response.data.sort((a, b) => {
-          const valueA = a[sortOrder.field];
-          const valueB = b[sortOrder.field];
-          if (sortOrder.direction === 'ascending') {
-            return valueA > valueB ? 1 : valueA < valueB ? -1 : 0;
-          } else {
-            return valueA < valueB ? 1 : valueA > valueB ? -1 : 0;
-          }
-        });
-        setProperties(sortedProperties);
+        setProperties(response.data);
       } catch (error: any) {
         setError(error?.response?.data?.message || 'An unexpected error occurred');
       } finally {

@@ -1,6 +1,9 @@
 import Listing from "../models/listing.model.js";
 import { errorHandler } from '../utils/error.js';
 
+const VALID_SORT_FIELDS = ['createdAt', 'price', 'titleAcres', 'cultivatedAcres', 'soilFinalRating', 'avgAVPerQtr', 'improvements'];
+const VALID_SORT_ORDERS = { 'ascending': 1, 'descending': -1 };
+
 export const createListing = async (req, res, next) => {
     try {
         const newListing = await Listing.create(req.body);
@@ -71,8 +74,13 @@ export const getListings = async (req, res, next) => {
         const startIndex = parseInt(req.query.startIndex) || 0;
 
         const searchTerm = req.query.searchTerm || '';
-        const sort = req.query.sort || 'createdAt';
-        const order = req.query.order || 'desc';
+        const sortField = req.query.sort || 'createdAt';
+        const sortOrder = req.query.order || 'descending';
+
+        // Validation for sortField and sortOrder
+        if (!VALID_SORT_FIELDS.includes(sortField) || !Object.keys(VALID_SORT_ORDERS).includes(sortOrder)) {
+            return next(errorHandler(400, 'Invalid sort parameters.'));
+        }
 
         const neLat = parseFloat(req.query.neLat);
         const neLng = parseFloat(req.query.neLng);
@@ -103,102 +111,48 @@ export const getListings = async (req, res, next) => {
             };
         }
 
-        let priceQuery = {};
+        let queries = [];
         if (filters.priceRange) {
             const [minPrice, maxPrice] = filters.priceRange;
-            priceQuery = {
-                price: {
-                    $gte: minPrice,
-                    $lte: maxPrice
-                }
-            };
+            queries.push({ price: { $gte: minPrice, $lte: maxPrice } });
         }
-
-        let acresQuery = {};
         if (filters.acresRange) {
             const [minAcres, maxAcres] = filters.acresRange;
-            acresQuery = {
-                titleAcres: {
-                    $gte: minAcres,
-                    $lte: maxAcres
-                }
-            };
+            queries.push({ titleAcres: { $gte: minAcres, $lte: maxAcres } });
         }
-
-        let soilQuery = {};
         if (filters.soilRange) {
             const [minSoil, maxSoil] = filters.soilRange;
-            soilQuery = {
-                soilFinalRating: {
-                    $gte: minSoil,
-                    $lte: maxSoil
-                }
-            };
+            queries.push({ soilFinalRating: { $gte: minSoil, $lte: maxSoil } });
+        }
+        if (filters.serviceType) {
+            queries.push({ serviceType: { $in: filters.serviceType } });
+        }
+        if (filters.listingStatus) {
+            queries.push({ listingStatus: { $in: filters.listingStatus } });
+        }
+        if (filters.enterprises) {
+            queries.push({ enterprises: { $in: filters.enterprises } });
+        }
+        if (filters.updates) {
+            queries.push({ updates: { $in: filters.updates } });
         }
 
-        let serviceTypeQuery = {};
-        if (filters.serviceType && filters.serviceType.length > 0) {
-            serviceTypeQuery = {
-                serviceType: {
-                    $in: filters.serviceType
-                }
-            };
-        }
-        
-        let listingStatusQuery = {};
-        if (filters.listingStatus && filters.listingStatus.length > 0) {
-            listingStatusQuery = {
-                listingStatus: {
-                    $in: filters.listingStatus
-                }
-            };
-        }
-
-        let enterprisesQuery = {};
-        if (filters.enterprises && filters.enterprises.length > 0) {
-            enterprisesQuery = {
-                enterprises: {
-                    $in: filters.enterprises
-                }
-            };
-        }
-        
-        let updatesQuery = {};
-        if (filters.updates && filters.updates.length > 0) {
-            updatesQuery = {
-                updates: {
-                    $in: filters.updates
-                }
-            };
-        }        
-
-        const query = {
-            $and: [
-                {
-                    $or: [
-                        {title: {$regex: searchTerm, $options: 'i'}},
-                        {description: {$regex: searchTerm, $options: 'i'}}
-                    ]
-                },
-                geoQuery,
-                priceQuery,
-                acresQuery,
-                soilQuery,
-                serviceTypeQuery,
-                listingStatusQuery,
-                enterprisesQuery,
-                updatesQuery
+        const searchQuery = {
+            $or: [
+                { title: { $regex: searchTerm, $options: 'i' } },
+                { description: { $regex: searchTerm, $options: 'i' } }
             ]
         };
 
-        const listings = await Listing.find(query).sort(
-            {[sort]: order}
-        ).limit(limit).skip(startIndex);
+        const query = {
+            $and: [searchQuery, geoQuery, ...queries]
+        };
 
-        return res.status(200).json(listings);
+        const sortCriteria = { [sortField]: VALID_SORT_ORDERS[sortOrder] };
+
+        const listings = await Listing.find(query).sort(sortCriteria).limit(limit).skip(startIndex);
+        res.status(200).json(listings);
     } catch (error) {
         next(error);
     }
 };
-
-

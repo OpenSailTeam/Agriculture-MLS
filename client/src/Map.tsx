@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
-import L from 'leaflet';
+import L, { latLngBounds, LatLngBounds } from 'leaflet';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { useSearchContext } from './SearchContextProvider'; 
+import { SearchContextProvider, useSearchContext } from './SearchContextProvider'; 
 import 'leaflet/dist/leaflet.css';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -9,7 +9,11 @@ import { GoogleProvider, GeoSearchControl } from 'leaflet-geosearch';
 import 'leaflet-geosearch/dist/geosearch.css';
 
 // Explicitly type defaultPosition as LatLngTuple
-const defaultPosition: [number, number] = [51.46244137, -102.7642267]; // Latitude, Longitude
+
+const initialMapBounds = latLngBounds(
+  { lat: 45.75219336063106, lng: -112.96142578125001 },
+  { lat: 57.25528054528889, lng: -95.88867187500001 }
+);
 
 let DefaultIcon = L.icon({
   iconUrl: icon,
@@ -57,7 +61,7 @@ const SearchBar = () => {
 };
 
 export const Map = () => {
-  const { properties, setMapBounds } = useSearchContext();
+  const { properties, setMapBounds, mapBounds } = useSearchContext();
 
   const MapEvents = () => {
     const map = useMap();
@@ -65,15 +69,9 @@ export const Map = () => {
     useEffect(() => {
       // Define the function to handle the event
       const handleMoveEnd = () => {
-        const bounds = map.getBounds();
-        const northEast = bounds.getNorthEast();
-        const southWest = bounds.getSouthWest();
-        setMapBounds({
-          _northEast: { lat: northEast.lat, lng: northEast.lng },
-          _southWest: { lat: southWest.lat, lng: southWest.lng }
-        });
+        setMapBounds(map.getBounds());
       };
-    
+
       // Add the event listener
       map.on('moveend', handleMoveEnd);
     
@@ -89,7 +87,7 @@ export const Map = () => {
 
   return (
     <div id="mapId" style={{ height: '100%', width: '100%' }}>
-      <MapContainer center={defaultPosition} zoom={5} style={{ height: '100%', width: '100%' }}>
+      <MapContainer bounds={mapBounds} style={{ height: '100%', width: '100%' }}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

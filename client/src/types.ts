@@ -1,4 +1,7 @@
-export interface MapBounds {
+import { LatLngBounds, LatLngBoundsExpression } from 'leaflet';
+import React, { ReactNode } from 'react';
+
+  export interface MapBounds {
     _northEast: { lat: number, lng: number };
     _southWest: { lat: number, lng: number };
   }
@@ -11,8 +14,8 @@ export interface MapBounds {
     mapViewport: Record<string, any>;
     setMapViewport: (viewport: Record<string, any>) => void;
     properties: Property[];
-    mapBounds: MapBounds | null;
-    setMapBounds: (bounds: MapBounds) => void;
+    mapBounds: LatLngBounds | undefined;
+    setMapBounds: (bounds: LatLngBounds) => void;
     sortOrder: SortOrder;
     setSortOrder: (order: SortOrder) => void;
   }
@@ -50,4 +53,8 @@ export interface MapBounds {
   export interface Location {
     type: string;
     coordinates: [number, number];
+  }
+
+  export interface SearchContextProviderProps {
+    children: ReactNode;
   }
