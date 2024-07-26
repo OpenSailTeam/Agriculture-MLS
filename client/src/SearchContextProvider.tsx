@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { SearchContextState, Property, SortOrder } from './types';
+import { SearchContextState, Property, SortOrder, defaultFilters } from './types';
 import { LatLngBounds, latLngBounds, LatLngBoundsExpression } from 'leaflet';
 
 const initialState: SearchContextState = {
@@ -31,9 +31,14 @@ export const SearchContextProvider = ({ children }: SearchContextProviderProps) 
 
   const urlParams = new URLSearchParams(location.search);
   const initialSearchQuery = urlParams.get('searchQuery') || '';
-  const initialFilters = JSON.parse(urlParams.get('filters') || '{}');
+
+  let initialFilters = defaultFilters;
+  const filterParams = urlParams.get('filters');
+  if (filterParams) {
+      initialFilters = JSON.parse(filterParams);
+  }
+  
   const initialMapViewport = JSON.parse(urlParams.get('mapViewport') || '{}');
-  const initialSortOrder = { field: urlParams.get('sort') || '{}', direction: urlParams.get('order') || '{}' };
   let initialMapBounds: LatLngBounds | undefined = latLngBounds(
     { lat: 45.75219336063106, lng: -112.96142578125001 },
     { lat: 57.25528054528889, lng: -95.88867187500001 }

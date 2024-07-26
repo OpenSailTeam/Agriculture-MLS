@@ -31,6 +31,10 @@ const listingSchema = new mongoose.Schema({
         type:String,
         required:false,
     },
+    ruralMunicipality:{
+        type:String,
+        required:false,
+    },
     updates:{
         type:Array,
         required:true,

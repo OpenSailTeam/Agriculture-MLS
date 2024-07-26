@@ -112,30 +112,30 @@ export const getListings = async (req, res, next) => {
         }
 
         let queries = [];
-        if (filters.priceRange) {
-            const [minPrice, maxPrice] = filters.priceRange;
-            queries.push({ price: { $gte: minPrice, $lte: maxPrice } });
-        }
-        if (filters.acresRange) {
-            const [minAcres, maxAcres] = filters.acresRange;
-            queries.push({ titleAcres: { $gte: minAcres, $lte: maxAcres } });
-        }
-        if (filters.soilRange) {
-            const [minSoil, maxSoil] = filters.soilRange;
-            queries.push({ soilFinalRating: { $gte: minSoil, $lte: maxSoil } });
-        }
-        if (filters.serviceType) {
-            queries.push({ serviceType: { $in: filters.serviceType } });
-        }
-        if (filters.listingStatus) {
-            queries.push({ listingStatus: { $in: filters.listingStatus } });
-        }
-        if (filters.enterprises) {
-            queries.push({ enterprises: { $in: filters.enterprises } });
-        }
-        if (filters.updates) {
-            queries.push({ updates: { $in: filters.updates } });
-        }
+        Object.keys(filters).forEach(key => {
+            if (Array.isArray(filters[key]) && filters[key].length > 0) {
+                switch (key) {
+                    case 'priceRange':
+                        const [minPrice, maxPrice] = filters[key];
+                        queries.push({ price: { $gte: minPrice, $lte: maxPrice } });
+                        break;
+                    case 'acresRange':
+                        const [minAcres, maxAcres] = filters[key];
+                        queries.push({ titleAcres: { $gte: minAcres, $lte: maxAcres } });
+                        break;
+                    case 'soilRange':
+                        const [minSoil, maxSoil] = filters[key];
+                        queries.push({ soilFinalRating: { $gte: minSoil, $lte: maxSoil } });
+                        break;
+                    case 'serviceType':
+                    case 'listingStatus':
+                    case 'enterprises':
+                    case 'updates':
+                        queries.push({ [key]: { $in: filters[key] } });
+                        break;
+                }
+            }
+        });
 
         const searchQuery = {
             $or: [

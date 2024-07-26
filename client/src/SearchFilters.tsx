@@ -2,6 +2,15 @@ import React from "react";
 import { useCallback, useMemo, useRef } from 'react';
 import { FilterPopover } from "./FilterPopover";
 import { useSearchContext } from "./SearchContextProvider";
+import { defaultFilters } from './types';
+import { formatNumberCurrency, formatNumber } from './helpers'
+
+const isDefault = (value: any, defaultValue: any) => {
+  if (Array.isArray(value)) {
+    return value.length === defaultValue.length && value.every((v, i) => v === defaultValue[i]);
+  }
+  return value === defaultValue;
+};
 
 export const SearchFilters = () => {
   const { searchQuery, setSearchQuery, filters, setFilters } = useSearchContext();
@@ -20,8 +29,6 @@ export const SearchFilters = () => {
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
-  
-  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleCheckboxChange = (
     value: string,
@@ -46,21 +53,8 @@ export const SearchFilters = () => {
     stateSetters.soilRange([min, max]);
   };
 
-  const applyFilters = () => {
-    setFilters({
-      priceRange,
-      acresRange,
-      soilRange,
-      serviceType,
-      listingStatus,
-      updates,
-      enterprises: []
-    });
-  };
-
   const resetFilters = () => {
-    setFilters({
-    });
+    setFilters(defaultFilters);
   };
 
   return (
@@ -80,7 +74,7 @@ export const SearchFilters = () => {
         />
       </div>
 
-      <FilterPopover label="Listing Status" onApply={applyFilters}>
+      <FilterPopover label="Listing Status" hasChanges={!isDefault(filters.serviceType, defaultFilters.serviceType) || !isDefault(filters.listingStatus, defaultFilters.listingStatus)}>
         <div className="p-4 font-medium text-sm bg-gray-100 text-gray-600">
           <h3>Type</h3>
         </div>
@@ -115,7 +109,7 @@ export const SearchFilters = () => {
         </div>
       </FilterPopover>
 
-      <FilterPopover label="Price" onApply={applyFilters}>
+      <FilterPopover label="Price" hasChanges={!isDefault(filters.priceRange, defaultFilters.priceRange)}>
         <div className="p-4 font-medium text-sm bg-gray-100 text-gray-600">
           <h3>Price Range</h3>
         </div>
@@ -128,7 +122,7 @@ export const SearchFilters = () => {
               <select
                 value={priceRange[0]}
                 onChange={(e) => handlePriceChange(Number(e.target.value), priceRange[1])}
-                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full"
+                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full text-base"
               >
                 {[
                   0, 50000, 100000, 150000, 200000, 250000, 300000, 350000,
@@ -140,7 +134,7 @@ export const SearchFilters = () => {
                   15000000, 20000000, 30000000, 40000000, 50000000, 1000000000,
                 ].map((price) => (
                   <option key={price} value={price}>
-                    {price}
+                    {formatNumberCurrency(price)}
                   </option>
                 ))}
               </select>
@@ -152,7 +146,7 @@ export const SearchFilters = () => {
               <select
                 value={priceRange[1]}
                 onChange={(e) => handlePriceChange(priceRange[0], Number(e.target.value))}
-                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full"
+                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full text-base"
               >
                 {[
                   50000,
@@ -205,7 +199,7 @@ export const SearchFilters = () => {
                   Number.MAX_SAFE_INTEGER,
                 ].map((price) => (
                   <option key={price} value={price}>
-                    {price}
+                    {price === Number.MAX_SAFE_INTEGER ? '∞' : formatNumberCurrency(price)}
                   </option>
                 ))}
               </select>
@@ -214,7 +208,7 @@ export const SearchFilters = () => {
         </div>
       </FilterPopover>
 
-      <FilterPopover label="Title Acres" onApply={applyFilters}>
+      <FilterPopover label="Title Acres" hasChanges={!isDefault(filters.acresRange, defaultFilters.acresRange)}>
         <div className="p-4 font-medium text-sm bg-gray-100 text-gray-600">
           <h3>Acres Range</h3>
         </div>
@@ -227,13 +221,13 @@ export const SearchFilters = () => {
               <select
                 value={acresRange[0]}
                 onChange={(e) => handleAcresChange(Number(e.target.value), acresRange[1])}
-                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full"
+                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full text-base"
               >
                 {[
                   0, 160, 320, 640, 1280, 2560, 5120, 10240,
                 ].map((acres) => (
                   <option key={acres} value={acres}>
-                    {acres}
+                    {formatNumber(acres)}
                   </option>
                 ))}
               </select>
@@ -245,13 +239,13 @@ export const SearchFilters = () => {
               <select
                 value={acresRange[1]}
                 onChange={(e) => handleAcresChange(acresRange[0], Number(e.target.value))}
-                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full"
+                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full text-base"
               >
                 {[
                   160, 320, 640, 1280, 2560, 5120, 10240, Number.MAX_SAFE_INTEGER,
                 ].map((acres) => (
                   <option key={acres} value={acres}>
-                    {acres}
+                    {acres === Number.MAX_SAFE_INTEGER ? '∞' : formatNumber(acres)}
                   </option>
                 ))}
               </select>
@@ -260,7 +254,7 @@ export const SearchFilters = () => {
         </div>
       </FilterPopover>
 
-      <FilterPopover label="Soil Final Rating" onApply={applyFilters}>
+      <FilterPopover label="Soil Final Rating" hasChanges={!isDefault(filters.soilRange, defaultFilters.soilRange)}>
         <div className="p-4 font-medium text-sm bg-gray-100 text-gray-600">
           <h3>Soil Final Rating Range</h3>
         </div>
@@ -273,13 +267,13 @@ export const SearchFilters = () => {
               <select
                 value={soilRange[0]}
                 onChange={(e) => handleSoilChange(Number(e.target.value), soilRange[1])}
-                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full"
+                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full text-base"
               >
                 {[
                   0, 10, 20, 30, 40, 50, 60, 70, 80, 90,
                 ].map((soilFinalRating) => (
                   <option key={soilFinalRating} value={soilFinalRating}>
-                    {soilFinalRating}
+                    {formatNumber(soilFinalRating)}
                   </option>
                 ))}
               </select>
@@ -291,13 +285,13 @@ export const SearchFilters = () => {
               <select
                 value={soilRange[1]}
                 onChange={(e) => handleSoilChange(soilRange[0], Number(e.target.value))}
-                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full"
+                className="border border-solid bg-gray-100 border-gray-300 rounded p-2 w-full text-base"
               >
                 {[
                   10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
                 ].map((soilFinalRating) => (
                   <option key={soilFinalRating} value={soilFinalRating}>
-                    {soilFinalRating}
+                    {formatNumber(soilFinalRating)}
                   </option>
                 ))}
               </select>
@@ -306,7 +300,7 @@ export const SearchFilters = () => {
         </div>
       </FilterPopover>
 
-      <FilterPopover label="Updates" onApply={applyFilters}>
+      <FilterPopover label="Updates" hasChanges={!isDefault(filters.updates, defaultFilters.updates)}>
         <div className="p-4 font-medium text-sm bg-gray-100 text-gray-600">
           <h3>Type</h3>
         </div>
@@ -325,7 +319,7 @@ export const SearchFilters = () => {
         </div>
       </FilterPopover>
 
-      <FilterPopover label="Enterprise" onApply={applyFilters}>
+      <FilterPopover label="Enterprise" hasChanges={!isDefault(filters.enterprises, defaultFilters.enterprises)}>
         <div className="p-4 font-medium text-sm bg-gray-100 text-gray-600">
           <h3>Type</h3>
         </div>

@@ -19,12 +19,32 @@ import React, { ReactNode } from 'react';
     sortOrder: SortOrder;
     setSortOrder: (order: SortOrder) => void;
   }
+
+  export interface Filters {
+    priceRange: [number, number];
+    acresRange: [number, number];
+    soilRange: [number, number];
+    serviceType: string[];
+    listingStatus: string[];
+    updates: string[];
+    enterprises: string[];
+  }  
+
+  export   const defaultFilters = {
+    priceRange: [0, Number.MAX_SAFE_INTEGER],
+    acresRange: [0, Number.MAX_SAFE_INTEGER],
+    soilRange: [0, 100],
+    serviceType: [],
+    listingStatus: [],
+    updates: [],
+    enterprises: []
+  };
   
   export interface Property {
     _id: string;
     title: string;
     description: string;
-    price: string;
+    price: number;
     createdAt: Date;
     updatedAt: Date;
     address: string;
@@ -32,6 +52,7 @@ import React, { ReactNode } from 'react';
     location: Location;
     enterprises: Array<string>;
     closestTown: string;
+    ruralMunicipality: string;
     updates: Array<string>;
     listingStatus: string;
     mlsNumber: string;

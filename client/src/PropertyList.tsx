@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSearchContext } from './SearchContextProvider';
 import { SortOrder } from './types'; // Assuming SortOrder is correctly imported
+import { formatNumberCurrency, formatNumber } from './helpers'
 
 export const PropertyList = () => {
   const { properties, sortOrder, setSortOrder } = useSearchContext();
@@ -43,12 +44,27 @@ export const PropertyList = () => {
           <div key={property._id} className="border rounded-lg overflow-hidden shadow-lg">
             <img src={property.imageUrls[0]} alt={property.title} className="w-full h-48 object-cover" />
             <div className="p-4">
-              <h3 className="text-lg font-semibold">{property.price}</h3>
-              <p className="text-sm text-gray-600">{property.closestTown}</p>
-              <p className="text-sm text-gray-600">{property.address}</p>
-              <p className="text-md">{property.titleAcres} | {property.cultivatedAcres}</p>
-              <p className="text-sm text-gray-600">{property.soilFinalRating}</p>
-              <p className="text-sm text-gray-600">{property.enterprises.join(', ')}</p>
+              <div>
+              <div className="text-sm">For Sale</div>
+              <h3 className="text-xlg font-bold">{formatNumberCurrency(property.price)}</h3>
+              <div className="flex flex-cols-2 w-full gap-2 items-center">
+                icon
+              <span className="text-base font-medium text-gray-600">{property.ruralMunicipality || 'Rural Municipality'}</span>
+            </div>
+            <div className="p-4">
+              </div>
+              </div>
+              <div>Title Acres: <span className="font-medium text-gray-600">{formatNumber(property.titleAcres)}</span></div>
+              {property.avgAVPerQtr && (
+                <div>
+                  Avg. AV/Qtr: <span className="font-medium text-gray-600">{formatNumber(property.avgAVPerQtr)}</span>
+                </div>
+              )}
+              <div>Soil Final Rating: <span className="font-medium text-gray-600">{formatNumber(property.titleAcres)}</span></div>
+              <div>$/acre: <span className="font-medium text-gray-600">{formatNumber(property.price / property.titleAcres)}</span></div>
+            </div>
+            <div className="px-4 text-sm flex items-end">
+              {property.brokerage}
             </div>
           </div>
         ))}
