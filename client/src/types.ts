@@ -18,6 +18,9 @@ import React, { ReactNode } from 'react';
     setMapBounds: (bounds: LatLngBounds) => void;
     sortOrder: SortOrder;
     setSortOrder: (order: SortOrder) => void;
+    hoveredPropertyId: string;
+    setHoveredPropertyId: (id: string) => void;
+    
   }
 
   export interface Filters {
