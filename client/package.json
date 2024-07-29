@@ -16,6 +16,7 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@xpd/tailwind-3dtransforms": "^1.0.3",
     "autoprefixer": "latest",
     "axios": "^1.6.8",
     "cors": "^2.8.5",

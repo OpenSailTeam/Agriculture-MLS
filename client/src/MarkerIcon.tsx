@@ -3,11 +3,11 @@ import React, { useState } from "react";
 export const MarkerIcon = (color: string, size: number) => {
   return (
     <svg
-      clip-rule="evenodd"
-      fill-rule="evenodd"
-      image-rendering="optimizeQuality"
-      shape-rendering="geometricPrecision"
-      text-rendering="geometricPrecision"
+      clipRule="evenodd"
+      fillRule="evenodd"
+      imageRendering="optimizeQuality"
+      shapeRendering="geometricPrecision"
+      textRendering="geometricPrecision"
       viewBox="0 0 21.0001 21.0001"
       xmlns="http://www.w3.org/2000/svg"
       id="fi_14090313"

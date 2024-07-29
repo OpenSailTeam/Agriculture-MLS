@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { useSearchContext } from "./SearchContextProvider";
-import { SortOrder } from "./types"; // Assuming SortOrder is correctly imported
+import { SortOrder } from "./types"; 
 import {
   formatNumberCurrency,
   formatNumber,
   getStatusText,
   timeAgo,
-  placeholderImageUrl,
-  svgIcon,
+  placeholderImageUrl
 } from "./helpers";
 import { MarkerIcon } from "./MarkerIcon";
 
@@ -125,7 +124,7 @@ export const PropertyList = () => {
                     <h3 className="text-xl font-bold">
                       {formatNumberCurrency(property.price)}
                     </h3>
-                    <div className="flex flex-cols-2 w-full gap-2 items-center">
+                    <div className="flex flex-cols-2 w-full gap-1 items-center">
                       {MarkerIcon("#1d4ed8", 20)}
                       <span className="text-base text-gray-600">
                         {property.ruralMunicipality || "Rural Municipality"}

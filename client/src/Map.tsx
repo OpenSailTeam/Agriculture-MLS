@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import L, { latLngBounds, LatLngBounds } from "leaflet";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip } from "react-leaflet";
 import { useSearchContext } from "./SearchContextProvider";
 import "leaflet/dist/leaflet.css";
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -10,12 +10,15 @@ import { GoogleProvider, GeoSearchControl } from "leaflet-geosearch";
 import "leaflet-geosearch/dist/geosearch.css";
 import {
   formatNumberCurrency,
+  formatNumberCurrencyShort,
   formatNumber,
+  formatNumberNoDecimal,
   getStatusText,
   timeAgo,
   placeholderImageUrl,
   svgIcon,
 } from "./helpers";
+import { MarkerIcon } from "./MarkerIcon";
 
 const listingIcon = L.divIcon({
   html: svgIcon("#1d4ed8"),
@@ -116,13 +119,20 @@ export const Map = () => {
             key={property._id}
             position={convertCoordinates(property.location.coordinates)}
             icon={property._id === hoveredPropertyId ? listingIconHover : listingIcon}
+            
           >
+            <Tooltip
+            direction="bottom"
+            offset={[0, 0]}
+            >
+              <span>{formatNumberNoDecimal(property.titleAcres)} Acres: {formatNumberCurrencyShort(property.price)}</span>
+            </Tooltip>
             <Popup className="m-0">
               <div className="flex flex-col relative">
                 <img
                   src={property.imageUrls[0] || placeholderImageUrl}
                   alt={property.title}
-                  className="object-cover"
+                  className="object-cover rounded-t-xl"
                 />
                 <div className="absolute m-2 px-1 bg-black bg-opacity-70 rounded-md text-white">
                   {timeAgo(property.createdAt)}
@@ -140,8 +150,8 @@ export const Map = () => {
                         <h3 className="text-xl font-bold">
                           {formatNumberCurrency(property.price)}
                         </h3>
-                        <div className="flex flex-cols-2 w-full gap-2 items-center">
-                          icon
+                        <div className="flex flex-cols-2 w-full gap-1 items-center">
+                        {MarkerIcon("#1d4ed8", 20)}
                           <span className="text-sm text-gray-600">
                             {property.ruralMunicipality || "Rural Municipality"}
                           </span>

@@ -6,8 +6,37 @@ export const formatNumberCurrency = (q: any) => {
     })
 } 
 
+export const formatNumberCurrencyShort = (q: any) => {
+  let num = parseFloat(q);
+  let suffix = '';
+  
+  if (num >= 1e9) {
+      num = num / 1e9;
+      suffix = 'B';
+  } else if (num >= 1e6) {
+      num = num / 1e6;
+      suffix = 'M';
+  } else if (num >= 1e3) {
+      num = num / 1e3;
+      suffix = 'K';
+  }
+
+  const formattedNumber = num.toLocaleString('en-CA', {
+      style: 'currency',
+      currency: 'CAD',
+      maximumFractionDigits: 0
+  });
+
+  return formattedNumber.replace('CA$', 'CAD$') + suffix;
+};
+
+
 export const formatNumber = (q: any) => {
     return q.toLocaleString('en-CA', { maximumFractionDigits: 2 })
+} 
+
+export const formatNumberNoDecimal = (q: any) => {
+  return q.toLocaleString('en-CA', { maximumFractionDigits: 0 })
 } 
 
 export const statusServiceMapping: { [key: string]: { [key: string]: string } } = {
