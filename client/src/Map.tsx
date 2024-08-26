@@ -124,8 +124,11 @@ export const Map = () => {
             <Tooltip
             direction="bottom"
             offset={[0, 0]}
+            permanent
             >
-              <span>{formatNumberNoDecimal(property.titleAcres)} Acres: {formatNumberCurrencyShort(property.price)}</span>
+              <span>
+                {formatNumberNoDecimal(property.titleAcres)} Acres: {formatNumberCurrencyShort(property.price)}
+              </span>
             </Tooltip>
             <Popup className="m-0">
               <div className="flex flex-col relative">

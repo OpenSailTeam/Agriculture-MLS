@@ -12,7 +12,7 @@ const App = () => {
         <div className="App h-screen w-full flex flex-col">
           <main className="flex flex-col h-full">
             <div className="shrink-0 relative z-20">
-            <SearchFilters />
+            <SearchFilters/>
             </div>
             <div className="flex flex-1 min-h-0 relative z-10">
               <div className="flex flex-1 min-w-0 overflow-hidden">
