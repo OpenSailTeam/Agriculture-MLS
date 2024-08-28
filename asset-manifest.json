@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/Agriculture-MLS/static/css/main.357cd57b.css",
-    "main.js": "/Agriculture-MLS/static/js/main.b531c42a.js",
+    "main.css": "/Agriculture-MLS/static/css/main.6e402cf6.css",
+    "main.js": "/Agriculture-MLS/static/js/main.2d60ae8e.js",
     "static/js/488.91edd563.chunk.js": "/Agriculture-MLS/static/js/488.91edd563.chunk.js",
     "index.html": "/Agriculture-MLS/index.html",
     "static/media/clear.svg": "/Agriculture-MLS/static/media/clear.6114818ce258eb184484.svg",
-    "main.357cd57b.css.map": "/Agriculture-MLS/static/css/main.357cd57b.css.map",
-    "main.b531c42a.js.map": "/Agriculture-MLS/static/js/main.b531c42a.js.map",
+    "main.6e402cf6.css.map": "/Agriculture-MLS/static/css/main.6e402cf6.css.map",
+    "main.2d60ae8e.js.map": "/Agriculture-MLS/static/js/main.2d60ae8e.js.map",
     "488.91edd563.chunk.js.map": "/Agriculture-MLS/static/js/488.91edd563.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.357cd57b.css",
-    "static/js/main.b531c42a.js"
+    "static/css/main.6e402cf6.css",
+    "static/js/main.2d60ae8e.js"
   ]
 }
