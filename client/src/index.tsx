@@ -9,8 +9,8 @@ import reportWebVitals from './reportWebVitals';
 const rootElement = document.getElementById('root');
 const root = ReactDOM.createRoot(rootElement!);
 
-// All `Portal`-related components need to have the the main app wrapper element as a container
-// so that the are in the subtree under the element used in the `important` option of the Tailwind's config.
+// All `Portal`-related components need to have the main app wrapper element as a container
+// so that they are in the subtree under the element used in the `important` option of the Tailwind's config.
 const theme = createTheme({
   components: {
     MuiPopover: {
@@ -26,6 +26,8 @@ const theme = createTheme({
   },
 });
 
+rootElement!.className = 'tw-preflight'; // Apply .tw-preflight class to the root element
+
 root.render(
   <React.StrictMode>
     <StyledEngineProvider injectFirst>
@@ -37,7 +39,4 @@ root.render(
   </React.StrictMode>,
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
