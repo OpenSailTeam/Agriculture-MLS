@@ -32,6 +32,7 @@
     "react-router-dom": "^6.22.3",
     "react-scripts": "latest",
     "tailwindcss": "latest",
+    "tailwindcss-scoped-preflight": "^3.4.3",
     "typescript": "latest",
     "web-vitals": "latest"
   },
