@@ -25,7 +25,7 @@
     "leaflet-geosearch": "^4.0.0",
     "lodash": "^4.17.21",
     "nouislider-react": "^3.4.2",
-    "postcss": "latest",
+    "postcss": "^8.4.41",
     "react": "latest",
     "react-dom": "latest",
     "react-leaflet": "^4.2.1",
