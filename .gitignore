@@ -3,6 +3,7 @@ node_modules/
 build/
 client/node_modules/.cache/
 node_modules
+.babelrc
 
 # Logs
 logs
