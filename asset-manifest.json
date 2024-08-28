@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/Agriculture-MLS/static/css/main.17c3a77a.css",
+    "main.js": "/Agriculture-MLS/static/js/main.4d3f7de2.js",
+    "static/js/462.3d3cf38f.chunk.js": "/Agriculture-MLS/static/js/462.3d3cf38f.chunk.js",
+    "index.html": "/Agriculture-MLS/index.html",
+    "static/media/clear.svg": "/Agriculture-MLS/static/media/clear.6114818ce258eb184484.svg",
+    "main.17c3a77a.css.map": "/Agriculture-MLS/static/css/main.17c3a77a.css.map",
+    "main.4d3f7de2.js.map": "/Agriculture-MLS/static/js/main.4d3f7de2.js.map",
+    "462.3d3cf38f.chunk.js.map": "/Agriculture-MLS/static/js/462.3d3cf38f.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.17c3a77a.css",
+    "static/js/main.4d3f7de2.js"
+  ]
+}
