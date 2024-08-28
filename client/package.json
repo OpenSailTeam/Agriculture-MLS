@@ -1,6 +1,7 @@
 {
   "name": "material-ui-cra-tailwind-ts",
   "version": "5.0.0",
+  "homepage": "https://OpenSailTeam.github.io/Agriculture-MLS",
   "private": true,
   "dependencies": {
     "@emotion/react": "latest",
@@ -35,6 +36,8 @@
     "web-vitals": "latest"
   },
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -54,6 +57,7 @@
   },
   "devDependencies": {
     "@types/leaflet": "^1.9.12",
-    "@types/lodash": "^4.17.4"
+    "@types/lodash": "^4.17.4",
+    "gh-pages": "^6.1.1"
   }
 }
