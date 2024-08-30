@@ -18,6 +18,8 @@ const initialState: SearchContextState = {
   setSortOrder: () => {},
   hoveredPropertyId: '',
   setHoveredPropertyId: () => {},
+  clickedPropertyId: '',
+  setClickedPropertyId: () => {},
 };
 
 const SearchContext = createContext<SearchContextState>({} as SearchContextState);
@@ -31,6 +33,7 @@ export const SearchContextProvider = ({ children }: SearchContextProviderProps) 
   const location = useLocation();
   const navigate = useNavigate();
   const [hoveredPropertyId, setHoveredPropertyId] = useState<string>('');
+  const [clickedPropertyId, setClickedPropertyId] = useState<string>('');
 
   const urlParams = new URLSearchParams(location.search);
   const initialSearchQuery = urlParams.get('searchQuery') || '';
@@ -107,7 +110,7 @@ if (boundsParam) {
   }, [searchQuery, filters, mapViewport, mapBounds, sortOrder]);
 
   return (
-    <SearchContext.Provider value={{ searchQuery, setSearchQuery, filters, setFilters, mapViewport, setMapViewport, properties, mapBounds, setMapBounds, sortOrder, setSortOrder, hoveredPropertyId, setHoveredPropertyId  }}>
+    <SearchContext.Provider value={{ searchQuery, setSearchQuery, filters, setFilters, mapViewport, setMapViewport, properties, mapBounds, setMapBounds, sortOrder, setSortOrder, hoveredPropertyId, setHoveredPropertyId, clickedPropertyId, setClickedPropertyId }}>
       {children}
     </SearchContext.Provider>
   );

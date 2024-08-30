@@ -20,7 +20,8 @@ import React, { ReactNode } from 'react';
     setSortOrder: (order: SortOrder) => void;
     hoveredPropertyId: string;
     setHoveredPropertyId: (id: string) => void;
-    
+    clickedPropertyId: string;
+    setClickedPropertyId: (id: string) => void;
   }
 
   export interface Filters {

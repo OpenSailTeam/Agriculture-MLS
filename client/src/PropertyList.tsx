@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import './styles.css';
 import { useSearchContext } from "./SearchContextProvider";
 import { SortOrder } from "./types"; 
 import {
@@ -11,7 +12,7 @@ import {
 import { MarkerIcon } from "./MarkerIcon";
 
 export const PropertyList = () => {
-  const { properties, sortOrder, setSortOrder, setHoveredPropertyId } = useSearchContext();
+  const { properties, sortOrder, setSortOrder, setHoveredPropertyId, setClickedPropertyId } = useSearchContext();
 
   const handleSortChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const [field, direction] = event.target.value.split(",");
@@ -24,6 +25,17 @@ export const PropertyList = () => {
 
   const handleMouseLeave = () => {
     setHoveredPropertyId('');
+  };
+  
+  const propertyRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+
+  const handleClickProperty = (propertyId: string) => {
+    setClickedPropertyId(propertyId);
+    const propertyElement = propertyRefs.current[propertyId];
+    console.log(propertyElement)
+    if (propertyElement) {
+      propertyElement.focus(); // This sets focus on the clicked property div
+    }
   };
 
   // Construct the select value from the current sortOrder state
@@ -97,11 +109,12 @@ export const PropertyList = () => {
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-2 w-full gap-4 p-4">
         {properties.map((property) => (
-          <div
-            key={property._id}
-            className="border rounded-lg overflow-hidden shadow-lg flex flex-col relative"
-            onMouseEnter={() => handleMouseEnter(property._id)}
-            onMouseLeave={handleMouseLeave}
+          <div ref={(el) => propertyRefs.current[property._id] = el} tabIndex={0} role="button" aria-label="View property details"
+          key={property._id}
+          className={`border rounded-lg overflow-hidden shadow-lg flex flex-col relative`}
+          onMouseEnter={() => handleMouseEnter(property._id)}
+          onMouseLeave={handleMouseLeave}
+          onClick={() => handleClickProperty(property._id)}
           >
             <img
               src={property.imageUrls[0] || placeholderImageUrl}
@@ -169,6 +182,7 @@ export const PropertyList = () => {
           </div>
         ))}
       </div>
+      
     </div>
   );
 };
