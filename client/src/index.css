@@ -1,6 +1,46 @@
+#root label,
+#root button,
+#root input,
+#root textarea,
+#root select {
+    all: unset;
+    display: revert;
+    margin: 0;
+    padding: 0;
+    font-size: 100%; /* Resets font size to default browser setting */
+    font-family: inherit; /* Ensures font consistency */
+    vertical-align: baseline; /* Aligns items properly */
+    box-sizing: border-box; /* Border-box sizing model */
+    color: inherit; /* Inherits parent color */
+    background: transparent;
+}
+
+#root a {
+    all: unset;
+    cursor: pointer;
+    color: inherit; /* Ensures links use the parent's text color */
+    text-decoration: none;
+}
+
+#root ul, #root ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#root table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+#root {
+  font-family: Arial, Helvetica, sans-serif;
+}
 
 html, body, #root {
     height: 100%;
