@@ -70,7 +70,7 @@ export const SearchFilters = () => {
           placeholder="Property name"
           value={searchQuery}
           onChange={handleSearchChange}
-          className="border border-solid border-gray-300 rounded block px-4 py-2 ps-10 text-sm text-gray-900 rounded-lg bg-gray-50 search-cancel:fill-blue-400 search-cancel:h-4 search-cancel:w-4 search-cancel:appearance-none search-cancel:bg-[url(assets/clear.svg)] search-cancel:cursor-pointer"
+          className="border border-solid border-gray-300 block px-4 py-2 ps-10 text-sm text-gray-900 rounded-lg bg-gray-50 search-cancel:fill-blue-400 search-cancel:h-4 search-cancel:w-4 search-cancel:appearance-none search-cancel:bg-[url(assets/clear.svg)] search-cancel:cursor-pointer"
         />
       </div>
 

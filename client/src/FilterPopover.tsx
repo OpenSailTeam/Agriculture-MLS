@@ -10,8 +10,8 @@ interface FilterPopoverProps {
 
 export const FilterPopover: React.FC<FilterPopoverProps> = ({ label, hasChanges, children }) => {
   return (
-    <Popover className="relative">
-      <PopoverButton className="inline-flex w-full h-full justify-center items-center gap-x-1.5 rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
+    <Popover className="relative" >
+      <PopoverButton tabIndex={0} className="inline-flex w-full h-full justify-center items-center gap-x-1.5 rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-600 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 cursor-pointer">
         {label}
         {hasChanges && <span className="w-2 h-2 rounded-full bg-blue-500 inline-block ml-2"></span>}
         <ChevronDownIcon className="-mr-1 h-5 w-5 text-gray-600" aria-hidden="true" />

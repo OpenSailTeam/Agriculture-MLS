@@ -104,7 +104,7 @@ export const PropertyList = () => {
         {properties.map((property) => (
           <div tabIndex={0} aria-label="View property details"
           key={property._id}
-          className={`border rounded-lg overflow-hidden shadow-lg flex flex-col relative hover:bg-gray-50 hover:cursor-pointer`}
+          className={`leading-7 text-gray-600 border rounded-lg overflow-hidden shadow-lg flex flex-col relative hover:bg-gray-50 hover:cursor-pointer`}
           onMouseEnter={() => handleMouseEnter(property._id)}
           onMouseLeave={handleMouseLeave}
           >
@@ -131,7 +131,7 @@ export const PropertyList = () => {
                     </h3>
                     <div className="flex flex-cols-2 w-full gap-1 items-center">
                       {MarkerIcon("#1d4ed8", 20)}
-                      <span className="text-base text-gray-600">
+                      <span className="text-base">
                         {property.ruralMunicipality || "Rural Municipality"}
                       </span>
                     </div>
@@ -139,27 +139,27 @@ export const PropertyList = () => {
                 </div>
                 <div>
                   <div>
-                    <span className="font-medium text-lg text-gray-600">
-                      {formatNumber(property.titleAcres)} Acres
-                    </span>
+                    <span className="font-semibold text-lg">
+                      {formatNumber(property.titleAcres)}</span> <span className="text-lg">Acres</span> 
+                    
                   </div>
                   {property.avgAVPerQtr && (
                     <div>
-                      <span className="font-light">Avg. AV/Qtr: </span>
-                      <span className="font-medium text-gray-600">
+                      <span className="font-light text-gray-500">Avg. AV/Qtr: </span>
+                      <span className="font-semibold">
                         {formatNumberCurrency(property.avgAVPerQtr)}
                       </span>
                     </div>
                   )}
                   <div>
-                    <span className="font-light">Soil Final Rating: </span>
-                    <span className="font-medium text-gray-600">
+                    <span className="font-light text-gray-500">Soil Final Rating: </span>
+                    <span className="font-semibold">
                       {formatNumber(property.titleAcres)}
                     </span>
                   </div>
                   <div>
-                    <span className="font-light">$/acre: </span>
-                    <span className="font-medium text-gray-600">
+                    <span className="font-light text-gray-500">$/acre: </span>
+                    <span className="font-semibold">
                       {formatNumberCurrency(
                         property.price / property.titleAcres
                       )}
