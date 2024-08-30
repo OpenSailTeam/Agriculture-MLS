@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
+import './styles.css';
 import { useSearchContext } from "./SearchContextProvider";
 import { SortOrder } from "./types"; 
 import {
@@ -11,7 +12,7 @@ import {
 import { MarkerIcon } from "./MarkerIcon";
 
 export const PropertyList = () => {
-  const { properties, sortOrder, setSortOrder, setHoveredPropertyId } = useSearchContext();
+  const { properties, sortOrder, setSortOrder, setHoveredPropertyId, setClickedPropertyId } = useSearchContext();
 
   const handleSortChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const [field, direction] = event.target.value.split(",");
@@ -24,6 +25,10 @@ export const PropertyList = () => {
 
   const handleMouseLeave = () => {
     setHoveredPropertyId('');
+  };
+
+  const handleClickProperty = (propertyId: string) => {
+    setClickedPropertyId(propertyId);
   };
 
   // Construct the select value from the current sortOrder state
@@ -97,11 +102,11 @@ export const PropertyList = () => {
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-2 w-full gap-4 p-4">
         {properties.map((property) => (
-          <div
-            key={property._id}
-            className="border rounded-lg overflow-hidden shadow-lg flex flex-col relative"
-            onMouseEnter={() => handleMouseEnter(property._id)}
-            onMouseLeave={handleMouseLeave}
+          <div tabIndex={0} aria-label="View property details"
+          key={property._id}
+          className={`border rounded-lg overflow-hidden shadow-lg flex flex-col relative hover:bg-gray-50 hover:cursor-pointer`}
+          onMouseEnter={() => handleMouseEnter(property._id)}
+          onMouseLeave={handleMouseLeave}
           >
             <img
               src={property.imageUrls[0] || placeholderImageUrl}
@@ -169,6 +174,7 @@ export const PropertyList = () => {
           </div>
         ))}
       </div>
+      
     </div>
   );
 };
