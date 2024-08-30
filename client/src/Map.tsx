@@ -124,7 +124,6 @@ export const Map = () => {
             <Tooltip
             direction="bottom"
             offset={[0, 0]}
-            permanent
             >
               <span>
                 {formatNumberNoDecimal(property.titleAcres)} Acres: {formatNumberCurrencyShort(property.price)}
